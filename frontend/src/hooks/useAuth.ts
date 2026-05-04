@@ -88,7 +88,7 @@ export function useAuth() {
   }, [address, isConnected, signMessageAsync, checkAuth]);
 
   const signOut = useCallback(async () => {
-    await fetch("/api/auth/me", { method: "DELETE" });
+    await fetch("/api/auth/logout", { method: "DELETE" });
     setAuthState({
       authenticated: false,
       address: null,

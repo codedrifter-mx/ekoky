@@ -1,4 +1,3 @@
-import { verifyMessage } from "viem";
 import { ironSession } from "iron-session";
 import { cookies } from "next/headers";
 
