@@ -68,7 +68,8 @@ export function useAuth() {
       const nonceRes = await fetch("/api/auth/challenge");
       const { nonce } = await nonceRes.json();
 
-      const message = createSiweMessage(address, 31337, nonce);
+      const chainId = 31337; // Hardhat local - can be updated when adding more chains
+      const message = createSiweMessage(address, chainId, nonce);
       const signature = await signMessageAsync({ message });
 
       const verifyRes = await fetch("/api/auth/verify", {
@@ -79,6 +80,9 @@ export function useAuth() {
 
       if (verifyRes.ok) {
         await checkAuth();
+      } else {
+        const data = await verifyRes.json();
+        console.error("Verification failed:", data.error);
       }
     } catch (error) {
       console.error("Sign in failed:", error);
