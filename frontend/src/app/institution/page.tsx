@@ -3,7 +3,7 @@
 import { useAccount } from "wagmi";
 import { useOffers, useExpressInterest } from "@/hooks/useOfferMarketplace";
 import { OfferCard } from "@/components/OfferCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function InstitutionPage() {
   const { isConnected } = useAccount();
@@ -17,9 +17,12 @@ export default function InstitutionPage() {
     expressInterest(offerId);
   };
 
-  if (isSuccess && lastInteractedId !== null) {
-    setTimeout(() => refetch(), 1000);
-  }
+  useEffect(() => {
+    if (isSuccess && lastInteractedId !== null) {
+      const timer = setTimeout(() => refetch(), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, lastInteractedId]);
 
   return (
     <div>

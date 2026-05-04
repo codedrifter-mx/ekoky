@@ -2,7 +2,7 @@
 
 import { useOffers, useCreateOffer } from "@/hooks/useOfferMarketplace";
 import { OfferCard } from "@/components/OfferCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function BusinessPage() {
   const { offers, refetch } = useOffers();
@@ -18,14 +18,17 @@ export default function BusinessPage() {
     createOffer(name, objective, description, location);
   };
 
-  if (isSuccess) {
-    setName("");
-    setObjective("");
-    setDescription("");
-    setLocation("");
-    setShowForm(false);
-    setTimeout(() => refetch(), 1000);
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      setName("");
+      setObjective("");
+      setDescription("");
+      setLocation("");
+      setShowForm(false);
+      const timer = setTimeout(() => refetch(), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess]);
 
   return (
     <div>
