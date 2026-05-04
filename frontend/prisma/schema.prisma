@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUSINESS
+  INSTITUTION
+}
+
+enum Category {
+  PRODUCE
+  DAIRY
+  BAKERY
+  PREPARED
+  PACKAGED
+  BEVERAGES
+  MIXED
+}
+
+enum OfferStatus {
+  ACTIVE
+  PENDING_FULFILLMENT
+  FULFILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum InterestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  address      String   @unique
+  role         Role
+  name         String
+  description  String?
+  logoUrl      String?
+  location     String?
+  latitude     Float?
+  longitude    Float?
+  website      String?
+  phone        String?
+  email        String?
+  isVerified   Boolean  @default(false)
+  stakingTier  String   @default("NONE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  offers          Offer[]
+  interests       Interest[]
+  sentMessages    Message[]  @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+
+  @@map("users")
+}
+
+model Offer {
+  id            String      @id @default(uuid())
+  onChainId     Int?
+  contentHash   String?
+  creatorId     String
+  creator       User        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  category      Category
+  title         String
+  description   String
+  quantity      String?
+  pickupAddress String?
+  latitude      Float?
+  longitude     Float?
+  expiresAt     DateTime
+  status        OfferStatus @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  interests Interest[]
+  messages  Message[]
+
+  @@index([creatorId])
+  @@index([category])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("offers")
+}
+
+model Interest {
+  id            String         @id @default(uuid())
+  offerId       String
+  offer         Offer          @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  institutionId String
+  institution   User           @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  message       String?
+  status        InterestStatus @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([offerId, institutionId])
+  @@index([institutionId])
+  @@index([offerId])
+  @@map("interests")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  offerId    String?
+  offer      Offer?   @relation(fields: [offerId], references: [id], onDelete: SetNull)
+  senderId   String
+  sender     User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([offerId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("messages")
+}
+
+model ImpactMetric {
+  id                String   @id @default(uuid())
+  address           String
+  offersCreated     Int      @default(0)
+  offersFulfilled   Int      @default(0)
+  interestsAccepted Int      @default(0)
+  foodDivertedKg    Float    @default(0)
+  co2SavedKg        Float    @default(0)
+  updatedAt         DateTime @updatedAt
+
+  @@unique([address])
+  @@map("impact_metrics")
+}
