@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsInstitution, useRegisterInstitution } from "@/hooks/useOfferRegistry";
+import { useAccount } from "wagmi";
 import { api } from "@/lib/api";
 import { InterestList, InterestItem } from "@/components/InterestList";
 import { OfferCategory, OfferStatus } from "@/components/OfferCard";
@@ -45,6 +47,13 @@ export default function OfferDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { authenticated, hasProfile, role, address } = useAuth();
+  const { address: walletAddress, isConnected } = useAccount();
+  const { isInstitution, isLoading: checkingInstitution } = useIsInstitution(walletAddress);
+  const {
+    register: registerInstitution,
+    isPending: registering,
+    isSuccess: registered,
+  } = useRegisterInstitution();
   const [offer, setOffer] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -222,7 +231,39 @@ export default function OfferDetailPage() {
         offer.status === "ACTIVE" &&
         !isExpired && (
           <div className="bg-white rounded-lg shadow-md border p-6">
-            {hasExpressedInterest ? (
+            {checkingInstitution ? (
+              <p className="text-gray-500">Checking on-chain registration...</p>
+            ) : !isInstitution ? (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  On-chain Registration Required
+                </h3>
+                <p className="text-gray-600">
+                  Before expressing interest, you need to register your institution on the blockchain.
+                  This is a one-time transaction.
+                </p>
+                {!isConnected ? (
+                  <p className="text-orange-600">Please connect your wallet first.</p>
+                ) : (
+                  <button
+                    onClick={registerInstitution}
+                    disabled={registering || registered}
+                    className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 transition"
+                  >
+                    {registering
+                      ? "Confirming..."
+                      : registered
+                      ? "Registered!"
+                      : "Register Institution On-chain"}
+                  </button>
+                )}
+                {registered && (
+                  <p className="text-green-600">
+                    Registration successful! You can now express interest.
+                  </p>
+                )}
+              </div>
+            ) : hasExpressedInterest ? (
               <p className="text-green-700 font-medium">
                 You have already expressed interest in this offer.
               </p>

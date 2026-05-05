@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsBusiness, useRegisterBusiness } from "@/hooks/useOfferRegistry";
+import { useAccount } from "wagmi";
 import { api } from "@/lib/api";
 
 const CATEGORIES = [
@@ -20,7 +22,14 @@ type Category = (typeof CATEGORIES)[number]["value"];
 
 export default function NewOfferPage() {
   const router = useRouter();
+  const { address, isConnected } = useAccount();
   const { authenticated, hasProfile, role, loading: authLoading } = useAuth();
+  const { isBusiness, isLoading: checkingBusiness } = useIsBusiness(address);
+  const {
+    register: registerBusiness,
+    isPending: registering,
+    isSuccess: registered,
+  } = useRegisterBusiness();
   const [category, setCategory] = useState<Category | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -83,6 +92,46 @@ export default function NewOfferPage() {
         >
           Back to Dashboard
         </Link>
+      </div>
+    );
+  }
+
+  if (checkingBusiness) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <p className="text-gray-500">Checking on-chain registration...</p>
+      </div>
+    );
+  }
+
+  if (!isBusiness) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6 py-8 text-center">
+        <h1 className="text-3xl font-bold text-green-600">On-chain Registration Required</h1>
+        <p className="text-gray-600">
+          Before creating offers, you need to register your business on the blockchain.
+          This is a one-time transaction.
+        </p>
+        {!isConnected ? (
+          <p className="text-orange-600">Please connect your wallet first.</p>
+        ) : (
+          <button
+            onClick={registerBusiness}
+            disabled={registering || registered}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
+          >
+            {registering
+              ? "Confirming..."
+              : registered
+              ? "Registered!"
+              : "Register Business On-chain"}
+          </button>
+        )}
+        {registered && (
+          <p className="text-green-600">
+            Registration successful! You can now create offers.
+          </p>
+        )}
       </div>
     );
   }
