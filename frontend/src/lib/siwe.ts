@@ -1,4 +1,4 @@
-import { ironSession } from "iron-session";
+import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
 export interface SessionData {
@@ -30,10 +30,9 @@ export function generateNonce(): string {
 
 export async function getSession(): Promise<SessionData | null> {
   const cookieStore = await cookies();
-  const session = ironSession<SessionData>({
+  const session = await getIronSession<SessionData>(cookieStore as any, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
-    cookie: cookieStore as any,
   });
   if (!session.address) return null;
   return { address: session.address, chainId: session.chainId };
@@ -41,10 +40,9 @@ export async function getSession(): Promise<SessionData | null> {
 
 export async function setSession(data: SessionData): Promise<void> {
   const cookieStore = await cookies();
-  const session = ironSession<SessionData>({
+  const session = await getIronSession<SessionData>(cookieStore as any, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
-    cookie: cookieStore as any,
   });
   session.address = data.address;
   session.chainId = data.chainId;
@@ -53,10 +51,9 @@ export async function setSession(data: SessionData): Promise<void> {
 
 export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
-  const session = ironSession<SessionData>({
+  const session = await getIronSession<SessionData>(cookieStore as any, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
-    cookie: cookieStore as any,
   });
   await session.destroy();
 }
