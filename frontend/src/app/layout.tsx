@@ -7,8 +7,9 @@ import { Navbar } from "@/components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ekoky - Food Waste Marketplace",
-  description: "Connect businesses with food surplus to institutions that can redistribute it",
+  title: "Ekoky - Reduce Food Waste. Feed Communities.",
+  description:
+    "An eco-friendly marketplace connecting businesses with food surplus to institutions that can collect and redistribute it. Built on blockchain for verifiable impact.",
 };
 
 export default function RootLayout({

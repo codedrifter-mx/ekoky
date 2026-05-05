@@ -1,6 +1,7 @@
 import { recoverMessageAddress } from "viem";
 import { NextRequest, NextResponse } from "next/server";
-import { createSiweMessage, setSession, nonces, cleanExpiredNonces } from "@/lib/siwe";
+import { createSiweMessage, nonces, cleanExpiredNonces } from "@/lib/siwe";
+import { setSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
