@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useRegisterBusiness, useRegisterInstitution } from "@/hooks/useOfferRegistry";
 import { api } from "@/lib/api";
 
 type Role = "BUSINESS" | "INSTITUTION";
@@ -12,18 +11,6 @@ type Role = "BUSINESS" | "INSTITUTION";
 export default function RegisterPage() {
   const router = useRouter();
   const { authenticated, hasProfile } = useAuth();
-  const {
-    register: registerBusiness,
-    isPending: isBusinessPending,
-    isSuccess: isBusinessSuccess,
-    error: businessError,
-  } = useRegisterBusiness();
-  const {
-    register: registerInstitution,
-    isPending: isInstitutionPending,
-    isSuccess: isInstitutionSuccess,
-    error: institutionError,
-  } = useRegisterInstitution();
 
   const [role, setRole] = useState<Role | null>(null);
   const [name, setName] = useState("");
@@ -31,24 +18,12 @@ export default function RegisterPage() {
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [awaitingTx, setAwaitingTx] = useState(false);
 
   useEffect(() => {
     if (hasProfile) {
       router.push("/dashboard");
     }
   }, [hasProfile, router]);
-
-  useEffect(() => {
-    if (awaitingTx) {
-      if (
-        (role === "BUSINESS" && isBusinessSuccess) ||
-        (role === "INSTITUTION" && isInstitutionSuccess)
-      ) {
-        router.push("/dashboard");
-      }
-    }
-  }, [awaitingTx, isBusinessSuccess, isInstitutionSuccess, role, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,14 +40,9 @@ export default function RegisterPage() {
         location: location.trim() || undefined,
       });
 
-      setSubmitting(false);
-
-      if (role === "BUSINESS") {
-        registerBusiness();
-      } else {
-        registerInstitution();
-      }
-      setAwaitingTx(true);
+      // Profile created successfully — redirect to dashboard
+      // On-chain registration happens later when user creates an offer or expresses interest
+      router.push("/dashboard");
     } catch (err) {
       const message =
         err instanceof Error
@@ -202,27 +172,12 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {(businessError || institutionError) && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-700 text-sm">
-                On-chain registration failed:{" "}
-                {(businessError || institutionError)?.message}
-              </p>
-            </div>
-          )}
-
           <button
             type="submit"
-            disabled={
-              submitting || isBusinessPending || isInstitutionPending || !name.trim()
-            }
+            disabled={submitting || !name.trim()}
             className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
           >
-            {submitting
-              ? "Creating profile..."
-              : isBusinessPending || isInstitutionPending
-              ? "Confirming on-chain..."
-              : "Create Profile"}
+            {submitting ? "Creating profile..." : "Create Profile"}
           </button>
         </form>
       )}
