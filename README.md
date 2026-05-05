@@ -1,41 +1,75 @@
-# Ekoky — Food Waste Blockchain Marketplace
+# Ekoky v2 — B2B Food Waste Marketplace
 
-An eco-friendly, blockchain-based marketplace connecting businesses with food surplus to institutions that can redistribute it. Originally built as a hackathon project in June 2022, now revived and modernized with 2026 web3 patterns.
+A blockchain-powered marketplace connecting food surplus businesses with redistribution institutions. Ekoky v2 introduces a hybrid on-chain/off-chain architecture with SIWE authentication, role-based access, off-chain interest and messaging, and an upgraded smart contract layer.
 
-## What Changed (Revival)
+## What Changed (v2)
 
-| Before (2022) | After (2026 Revival) |
+| Before (Revival) | After (v2) |
 |---|---|
-| Truffle + Ganache | Hardhat + TypeScript |
-| Vanilla JS + Bootstrap 5 | Next.js 15 + React + Tailwind CSS |
-| web3.js v1 | wagmi v2 + viem + RainbowKit |
-| ABI/source mismatch bugs | Fresh Hardhat compilation |
-| `incrementInterested` never worked (postfix increment bug) | Fixed: `offers[_id].interested += 1` |
-| PII (email, phone) stored on-chain | Removed — only name, objective, description, location |
-| No access control | OpenZeppelin `Ownable` |
-| No input validation | `require` checks on all params |
-| Single contract (CRUD only) | 3 contracts: OfferMarketplace + EkokyToken (ERC-20) + Staking |
-| No production build path | Next.js `npm run build` |
+| Pure frontend ↔ blockchain | Hybrid: Next.js API routes + Prisma + SQLite |
+| No authentication | SIWE (Sign-In with Ethereum) + session cookies |
+| Single user type | Role-based access: **Business** vs **Institution** |
+| Basic offer listing | Offer browsing with **search, filter, and pagination** |
+| On-chain "express interest" (gas cost) | **Free, off-chain** interest system via API |
+| No communication | **Messaging** between business and institution |
+| No metrics | **Impact dashboard** with platform-wide stats |
+| `OfferMarketplace` (basic CRUD) | `OfferRegistry` with role-based access and full lifecycle |
+
+### Architecture Highlights
+
+- **Backend Layer:** Next.js API routes handle authentication, offers, interests, messages, and impact metrics
+- **Database:** Prisma ORM with SQLite for fast local development (User, Offer, Interest, Message, ImpactMetric)
+- **Authentication:** SIWE with `iron-session` for secure, stateful sessions
+- **Smart Contracts:** `OfferRegistry` enforces business/institution roles on-chain with offer lifecycle management
+- **Frontend:** Next.js 16 App Router with server and client components
 
 ## Tech Stack
 
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS v4
+- **Web3:** wagmi v2, RainbowKit v2, viem, SIWE
+- **Backend:** Next.js API routes, Prisma ORM, SQLite, Zod validation
+- **Auth:** iron-session, SIWE (Sign-In with Ethereum)
 - **Smart Contracts:** Solidity ^0.8.24, Hardhat ^2.22, OpenZeppelin v5, ethers.js v6
-- **Frontend:** Next.js 16, TypeScript, wagmi v2, RainbowKit v2, Tailwind CSS v4
 - **Local Chain:** Hardhat node (port 8545, chain ID 31337)
-- **Wallet:** MetaMask
+- **Wallet:** MetaMask or any RainbowKit-compatible wallet
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Browser                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   RainbowKit │  │   wagmi     │  │   iron-session      │ │
+│  │   (connect)  │  │   (read)    │  │   (auth cookie)     │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Next.js 16 Frontend                       │
+│  ┌─────────────────┐  ┌──────────────────────────────────┐  │
+│  │   App Router     │  │        API Routes (/api/*)        │  │
+│  │   (pages, RSC)   │  │  auth · offers · interests       │  │
+│  │                  │  │  messages · impact · users       │  │
+│  └─────────────────┘  └──────────────────────────────────┘  │
+└──────────┬─────────────────────────────┬────────────────────┘
+           │                             │
+           ▼                             ▼
+┌─────────────────────┐         ┌─────────────────────────────┐
+│   Prisma + SQLite    │         │      Hardhat Local Node      │
+│   (users, offers,    │         │  ┌─────────────────────────┐ │
+│    interests, msgs)  │         │  │   OfferRegistry.sol     │ │
+└─────────────────────┘         │  │   EkokyToken.sol        │ │
+                                │  │   Staking.sol           │ │
+                                │  └─────────────────────────┘ │
+                                └─────────────────────────────┘
+```
 
 ## How to Run Locally
 
-You need **3 separate terminals** and **MetaMask browser extension**.
+You need **Node.js v20+**, **npm v10+**, and **MetaMask** (or similar wallet).
 
-### Prerequisites
-
-- Node.js v20+ (`node --version`)
-- npm v10+ (`npm --version`)
-- MetaMask browser extension installed
-- Git
-
-### Step 1: Clone & Install
+### 1. Clone & Install
 
 ```bash
 git clone <repo-url>
@@ -48,24 +82,16 @@ cd contracts && npm install
 cd ../frontend && npm install
 ```
 
-### Step 2: Start Local Blockchain (Terminal 1)
+### 2. Start Local Blockchain
 
 ```bash
 cd ekoky/contracts
 npx hardhat node
 ```
 
-Keep this running. It will print **20 test accounts with private keys**. Copy the private key for **Account #0** — you'll need it for MetaMask.
+Keep this running. Copy the private key for **Account #0** — you'll need it for MetaMask.
 
-Expected output:
-```
-Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
-Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-```
-
-### Step 3: Deploy Contracts (Terminal 2)
-
-Wait for Terminal 1 to show it's ready, then:
+### 3. Deploy Contracts
 
 ```bash
 cd ekoky/contracts
@@ -75,98 +101,103 @@ npx hardhat run scripts/deploy.ts --network localhost
 Expected output:
 ```
 EkokyToken deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-OfferMarketplace deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+OfferRegistry deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
 Staking deployed to: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
 Funded Staking contract with 50000.0 EKY tokens
 ```
 
-> **Note:** The deployed addresses are already configured in `frontend/src/lib/contracts.ts`. If they differ, update them there.
+> **Note:** Deployed addresses are pre-configured in `frontend/src/lib/contracts.ts`. Update if yours differ.
 
-### Step 4: Configure MetaMask
+### 4. Setup Database
 
-1. **Add Hardhat Local Network:**
-   - MetaMask → Click network dropdown → "Add Network"
-   - **Network name:** `Hardhat Local`
-   - **New RPC URL:** `http://127.0.0.1:8545`
-   - **Chain ID:** `31337`
-   - **Currency symbol:** `ETH`
+```bash
+cd ekoky/frontend
+npx prisma migrate dev
+npx prisma db seed
+```
 
-2. **Import Test Account:**
-   - MetaMask → "Import Account"
-   - Paste the private key from Account #0 (from Terminal 1)
-   - You'll see **1,000,000 EKY** tokens and **10,000 ETH**
+### 5. Configure Environment
 
-### Step 5: Start Frontend (Terminal 3)
+```bash
+cp .env.example .env
+```
+
+Ensure `.env` contains:
+```env
+DATABASE_URL="file:./prisma/dev.db"
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your-project-id>
+IRON_SESSION_PASSWORD=<32-character-secret>
+```
+
+### 6. Start Frontend
 
 ```bash
 cd ekoky/frontend
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser.
+Open http://localhost:3000
+
+### 7. Configure MetaMask
+
+1. **Add Hardhat Local Network:**
+   - Network name: `Hardhat Local`
+   - RPC URL: `http://127.0.0.1:8545`
+   - Chain ID: `31337`
+   - Currency symbol: `ETH`
+
+2. **Import Test Account:**
+   - Import Account #0 private key
+   - You'll see **1,000,000 EKY** tokens and **10,000 ETH**
 
 ---
 
 ## Feature Guide
 
-### 🏪 Business — Create Food Waste Offers
+### Authentication
 
-1. Go to **Business** page
-2. Click **"Create Offer"**
-3. Fill in:
-   - **Business Name** (required)
-   - **Objective** (required) — e.g. "We waste fruit and vegetables weekly"
-   - **Description** — details about the food waste
-   - **Location** — pickup address
-4. Click **"Submit Offer"**
-5. MetaMask prompts — click **"Confirm"**
-6. Offer appears in the list below
+1. Go to **Login** or **Register**
+2. Connect your wallet via RainbowKit
+3. Sign the SIWE message
+4. Select your role: **Business** or **Institution**
+5. Complete your profile (name, location, description)
 
-### 🏛️ Institution — Browse & Express Interest
+### Business Workflow
 
-1. Go to **Institution** page
-2. Browse available offers
-3. Click **"Express Interest"** on any offer
-4. MetaMask prompts — click **"Confirm"**
-5. The "interested" counter increments
+1. **Create Offer:** Go to **Dashboard** → "New Offer"
+   - Fill title, description, category, quantity, pickup address, expiration
+   - Submit — offer is stored in SQLite + registered on-chain via `OfferRegistry`
+2. **Manage Interests:** View institutions who expressed interest in your offers
+   - Accept or reject interests
+3. **Messaging:** Message institutions directly to coordinate pickups
 
-### 💰 Staking — Earn Rewards with EKY Tokens
+### Institution Workflow
 
-1. Go to **Home** page (scroll down to staking section)
-2. **Wallet Balance** shows your EKY tokens
-3. Enter amount to stake, click **"Stake"**
-4. MetaMask prompts **twice**: first to approve, then to stake
-5. **Earned Rewards** grows over time
-6. Click **"Claim Rewards"** to collect
-7. Click **"Unstake"** to withdraw your staked tokens
+1. **Browse Offers:** Go to **Explore**
+   - Search by keyword, filter by category, sort by date/relevance
+   - Pagination for large result sets
+2. **Express Interest:** Click "Express Interest" on any offer
+   - Free, off-chain — no gas required
+3. **Messaging:** Communicate with businesses to arrange collection
 
----
+### Staking
 
-## Manual Testing Checklist
+1. Go to **Staking** page
+2. View your EKY wallet balance
+3. Enter amount and click **Stake**
+4. MetaMask prompts twice: approve, then stake
+5. Watch **Earned Rewards** grow over time
+6. Click **Claim Rewards** to collect
+7. Click **Unstake** to withdraw
 
-| Feature | Steps | Expected Result |
-|---------|-------|----------------|
-| Create Offer | Business page → Fill form → Submit | Offer appears in list |
-| Express Interest | Institution page → Click button | Counter increments |
-| Validation | Empty Name/Objective → Submit | Form prevents submission |
-| Empty State | Restart Hardhat → Redeploy | "No offers yet" message |
-| Token Balance | Connect deployer account | Shows ~950,000 EKY |
-| Stake | Enter amount → Click Stake | Staked balance increases |
-| Earn Rewards | Wait 10-30s after staking | Earned Rewards > 0 |
-| Claim Rewards | Click Claim → Confirm | Balance increases, rewards reset |
-| Unstake | Enter amount → Click Unstake | Staked balance decreases |
-| Invalid Stake | Enter 0 → Click Stake | MetaMask shows revert error |
+### Impact Dashboard
 
----
-
-## Running Contract Tests
-
-```bash
-cd contracts
-npx hardhat test
-```
-
-**Expected:** All 31 tests passing (OfferMarketplace: 15, EkokyToken: 8, Staking: 8).
+1. Go to **Impact** page
+2. View platform-wide metrics:
+   - Total offers created and fulfilled
+   - Food diverted (kg)
+   - CO₂ saved (kg)
+3. Track your personal contribution
 
 ---
 
@@ -174,43 +205,97 @@ npx hardhat test
 
 ```
 ekoky/
-├── contracts/              # Hardhat project
+├── contracts/                    # Hardhat project
 │   ├── contracts/
-│   │   ├── OfferMarketplace.sol    # Offer CRUD marketplace
-│   │   ├── EkokyToken.sol          # ERC-20 utility token
-│   │   └── Staking.sol             # Staking rewards contract
+│   │   ├── OfferRegistry.sol     # Role-based offer lifecycle contract
+│   │   ├── EkokyToken.sol        # ERC-20 utility token
+│   │   ├── Staking.sol           # Staking rewards contract
+│   │   └── OfferMarketplace.sol  # Legacy contract (v1)
 │   ├── scripts/
-│   │   └── deploy.ts               # Deployment script
+│   │   └── deploy.ts             # Deployment script
 │   ├── test/
-│   │   ├── OfferMarketplace.test.ts
+│   │   ├── OfferRegistry.test.ts
 │   │   ├── EkokyToken.test.ts
-│   │   └── Staking.test.ts
+│   │   ├── Staking.test.ts
+│   │   └── OfferMarketplace.test.ts
 │   ├── hardhat.config.ts
 │   └── package.json
 │
-└── frontend/               # Next.js app
+└── frontend/                     # Next.js 16 app
+    ├── prisma/
+    │   ├── schema.prisma         # Database schema
+    │   ├── seed.ts               # Seed data
+    │   └── migrations/           # Prisma migrations
     ├── src/
     │   ├── app/
-    │   │   ├── page.tsx              # Home (landing + staking)
-    │   │   ├── business/
-    │   │   │   └── page.tsx          # Create offers
-    │   │   └── institution/
-    │   │       └── page.tsx          # Browse + express interest
+    │   │   ├── page.tsx              # Home / landing
+    │   │   ├── layout.tsx            # Root layout + providers
+    │   │   ├── login/page.tsx        # SIWE login
+    │   │   ├── register/page.tsx     # Role selection + profile
+    │   │   ├── dashboard/page.tsx    # Business dashboard
+    │   │   ├── explore/page.tsx      # Browse offers with search/filter
+    │   │   ├── impact/page.tsx       # Impact metrics dashboard
+    │   │   ├── staking/page.tsx      # Staking interface
+    │   │   ├── offers/new/page.tsx   # Create offer
+    │   │   └── offers/[id]/page.tsx  # Offer detail + messaging
+    │   ├── app/api/
+    │   │   ├── auth/
+    │   │   │   ├── challenge/route.ts  # SIWE nonce
+    │   │   │   ├── verify/route.ts     # SIWE verification + session
+    │   │   │   ├── me/route.ts         # Current user
+    │   │   │   └── logout/route.ts     # Clear session
+    │   │   ├── offers/route.ts         # CRUD offers
+    │   │   ├── offers/[id]/route.ts    # Single offer
+    │   │   ├── interests/route.ts      # Express/manage interest
+    │   │   ├── messages/route.ts       # Send/receive messages
+    │   │   ├── impact/route.ts         # Aggregate metrics
+    │   │   └── users/route.ts          # User profiles
     │   ├── components/
     │   │   ├── Navbar.tsx
     │   │   ├── OfferCard.tsx
+    │   │   ├── SearchBar.tsx
+    │   │   ├── InterestList.tsx
+    │   │   ├── MessageThread.tsx
     │   │   ├── StakeForm.tsx
     │   │   └── Providers.tsx
     │   ├── hooks/
-    │   │   ├── useOfferMarketplace.ts
+    │   │   ├── useAuth.ts
+    │   │   ├── useOfferRegistry.ts
     │   │   ├── useEkokyToken.ts
     │   │   └── useStaking.ts
     │   ├── lib/
-    │   │   └── contracts.ts          # ABIs + addresses
+    │   │   ├── contracts.ts          # ABIs + contract addresses
+    │   │   ├── prisma.ts             # Prisma client singleton
+    │   │   ├── session.ts            # iron-session config
+    │   │   ├── siwe.ts               # SIWE helper
+    │   │   └── api.ts                # API client helpers
     │   └── config/
-    │       └── wagmi.ts              # Chain config
+    │       └── wagmi.ts              # wagmi + RainbowKit config
+    ├── .env.example
     └── package.json
 ```
+
+---
+
+## Running Tests
+
+### Contract Tests
+
+```bash
+cd contracts
+npx hardhat test
+```
+
+**Expected:** All tests passing (OfferRegistry, EkokyToken, Staking, OfferMarketplace).
+
+### Build Verification
+
+```bash
+cd frontend
+npm run build
+```
+
+**Expected:** Clean build with no TypeScript or compilation errors.
 
 ---
 
@@ -224,7 +309,7 @@ ekoky/
 | Port 8545 in use | `Get-NetTCPConnection -LocalPort 8545` then `Stop-Process -Id <PID>` |
 | `npm install` fails | `npm cache clean --force` then retry |
 
-### MetaMask
+### MetaMask / Wallet
 
 | Issue | Solution |
 |-------|----------|
@@ -233,14 +318,15 @@ ekoky/
 | Wrong nonce error | Same as above — clear activity tab data |
 | Imported account shows 0 ETH | Make sure Hardhat node is running and you're on "Hardhat Local" |
 
-### Frontend
+### Frontend / API
 
 | Issue | Solution |
 |-------|----------|
 | "Contract not found" error | Verify addresses in `frontend/src/lib/contracts.ts` match deployed addresses |
-| "Too many re-renders" error | Refresh page — fixed in latest commit |
-| Offers not appearing after creation | Wait 2-3 seconds and refresh. Blockchain state updates asynchronously. |
-| Staking shows 0 balance | Make sure you're connected with the deployer account (has 1M EKY) |
+| "Unauthorized" on API routes | Ensure you're logged in (wallet connected + SIWE signed) |
+| Database errors after schema change | Run `npx prisma migrate dev` and `npx prisma generate` |
+| Offers not appearing after creation | Refresh page — blockchain state updates asynchronously |
+| Staking shows 0 balance | Connect with deployer account (has 1M EKY) or mint tokens |
 | Rewards not increasing | Hardhat mines blocks on transactions. Do another transaction or wait. |
 
 ### Contracts
@@ -250,6 +336,8 @@ ekoky/
 | Tests fail after contract changes | `npx hardhat clean` then `npx hardhat compile` then `npx hardhat test` |
 | Hardhat node crashed | Restart it and redeploy contracts |
 | Address mismatch after redeploy | Update `frontend/src/lib/contracts.ts` with new addresses |
+| "Not registered as business" | Register via frontend or call `registerBusiness()` on OfferRegistry |
+| "Not registered as institution" | Register via frontend or call `registerInstitution()` on OfferRegistry |
 
 ---
 
