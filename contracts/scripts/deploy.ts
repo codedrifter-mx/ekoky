@@ -12,12 +12,12 @@ async function main() {
   const tokenAddress = await token.getAddress();
   console.log("EkokyToken deployed to:", tokenAddress);
 
-  // 2. Deploy OfferMarketplace
-  const OfferMarketplace = await ethers.getContractFactory("OfferMarketplace");
-  const marketplace = await OfferMarketplace.deploy();
-  await marketplace.waitForDeployment();
-  const marketplaceAddress = await marketplace.getAddress();
-  console.log("OfferMarketplace deployed to:", marketplaceAddress);
+  // 2. Deploy OfferRegistry
+  const OfferRegistry = await ethers.getContractFactory("OfferRegistry");
+  const registry = await OfferRegistry.deploy();
+  await registry.waitForDeployment();
+  const registryAddress = await registry.getAddress();
+  console.log("OfferRegistry deployed to:", registryAddress);
 
   // 3. Deploy Staking (token as both staking and reward token)
   const Staking = await ethers.getContractFactory("Staking");
@@ -33,12 +33,12 @@ async function main() {
 
   console.log("\n=== Deployment Summary ===");
   console.log("EkokyToken:       ", tokenAddress);
-  console.log("OfferMarketplace:  ", marketplaceAddress);
+  console.log("OfferRegistry:     ", registryAddress);
   console.log("Staking:           ", stakingAddress);
   console.log("================================");
 
   console.log("\nUpdate frontend/src/lib/contracts.ts with these addresses:");
-  console.log(`OFFER_MARKETPLACE_ADDRESS = "${marketplaceAddress}"`);
+  console.log(`OFFER_REGISTRY_ADDRESS = "${registryAddress}"`);
   console.log(`EKOKY_TOKEN_ADDRESS = "${tokenAddress}"`);
   console.log(`STAKING_ADDRESS = "${stakingAddress}"`);
 }

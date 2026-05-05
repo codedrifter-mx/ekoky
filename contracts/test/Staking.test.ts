@@ -97,4 +97,25 @@ describe("Staking", function () {
       expect(await token.balanceOf(staker1.address)).to.equal(balanceBefore + earned);
     });
   });
+
+  describe("setRewardRate", function () {
+    it("should allow owner to update reward rate", async function () {
+      const newRate = 200;
+      await staking.connect(owner).setRewardRate(newRate);
+      expect(await staking.rewardRate()).to.equal(newRate);
+    });
+
+    it("should revert if non-owner tries to update reward rate", async function () {
+      await expect(
+        staking.connect(staker1).setRewardRate(200)
+      ).to.be.revertedWithCustomError(staking, "OwnableUnauthorizedAccount");
+    });
+
+    it("should emit RewardRateUpdated event", async function () {
+      const newRate = 300;
+      await expect(staking.connect(owner).setRewardRate(newRate))
+        .to.emit(staking, "RewardRateUpdated")
+        .withArgs(newRate);
+    });
+  });
 });
