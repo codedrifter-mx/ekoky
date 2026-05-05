@@ -12,11 +12,11 @@ export function Navbar() {
             <Link href="/" className="text-xl font-bold text-green-600">
               Ekoky
             </Link>
-            <Link href="/business" className="text-gray-700 hover:text-green-600">
-              Business
+            <Link href="/explore" className="text-gray-700 hover:text-green-600">
+              Explore
             </Link>
-            <Link href="/institution" className="text-gray-700 hover:text-green-600">
-              Institution
+            <Link href="/dashboard" className="text-gray-700 hover:text-green-600">
+              Dashboard
             </Link>
           </div>
           <div className="flex items-center">
