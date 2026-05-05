@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { InterestList, InterestItem } from "@/components/InterestList";
 import { OfferCategory, OfferStatus } from "@/components/OfferCard";
+import { MessageThread } from "@/components/MessageThread";
 
 interface OfferDetail {
   id: string;
@@ -85,6 +86,21 @@ export default function OfferDetailPage() {
             i.institution.address.toLowerCase() === address.toLowerCase()
         )
       : false;
+
+  const acceptedInterest = offer?.interests.find(
+    (i) => i.status === "ACCEPTED"
+  );
+  const isAcceptedInstitution =
+    acceptedInterest && address
+      ? acceptedInterest.institution.address.toLowerCase() ===
+        address.toLowerCase()
+      : false;
+  const canMessage = isOwner || isAcceptedInstitution;
+  const receiverId = isOwner
+    ? acceptedInterest?.institution.id
+    : isAcceptedInstitution
+      ? offer?.creator.id
+      : undefined;
 
   const handleCancel = async () => {
     if (!offer) return;
@@ -254,6 +270,12 @@ export default function OfferDetailPage() {
           updatingId={updatingInterestId}
         />
       )}
+
+      {(offer.status === "PENDING_FULFILLMENT" || offer.status === "FULFILLED") &&
+        canMessage &&
+        receiverId && (
+          <MessageThread offerId={offer.id} receiverId={receiverId} />
+        )}
 
       <div className="pt-4">
         <Link

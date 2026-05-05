@@ -5,7 +5,7 @@ export interface InterestItem {
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   message: string | null;
   createdAt: string;
-  institution: { name: string; address: string };
+  institution: { id: string; name: string; address: string };
 }
 
 interface InterestListProps {
