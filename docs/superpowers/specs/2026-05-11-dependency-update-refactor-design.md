@@ -50,7 +50,7 @@ Each has its own `package.json` and `package-lock.json`. Updates are applied per
 6. **`prisma generate` now outputs to `./generated/prisma/`** by default instead of `node_modules/@prisma/client`.
 
 **Files to modify**:
-- `frontend/package.json` — update prisma + @prisma/client versions; add `@prismatic/client` driver adapter dep
+- `frontend/package.json` — update prisma + @prisma/client versions; add `@prisma/adapter-libsql` driver adapter dep
 - `frontend/prisma.config.ts` — new file
 - `frontend/src/lib/prisma.ts` — change import path and add driver adapter
 - `frontend/prisma/schema.prisma` — verify datasource url resolution
