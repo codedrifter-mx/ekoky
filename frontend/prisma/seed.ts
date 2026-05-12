@@ -1,6 +1,8 @@
-import { PrismaClient, Role, Category, OfferStatus, InterestStatus } from "../generated/prisma/client";
+import { PrismaClient, Role, Category, OfferStatus, InterestStatus } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL ?? "file:./prisma/dev.db" });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Clear existing data in reverse dependency order to avoid foreign key issues
