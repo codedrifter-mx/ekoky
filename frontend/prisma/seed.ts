@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Category, OfferStatus, InterestStatus } from "@prisma/client";
+import { PrismaClient, Role, Category, OfferStatus, InterestStatus } from "../generated/prisma/client";
 
 const prisma = new PrismaClient();
 
