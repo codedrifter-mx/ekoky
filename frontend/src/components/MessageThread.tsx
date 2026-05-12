@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
 interface Message {
@@ -25,23 +25,27 @@ export function MessageThread({ offerId, receiverId }: MessageThreadProps) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMessages = useCallback(async () => {
-    try {
-      const data = await api.get<Message[]>(`/api/messages?offerId=${offerId}`);
-      setMessages(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load messages");
-    } finally {
-      setLoading(false);
-    }
-  }, [offerId]);
-
   useEffect(() => {
+    let cancelled = false;
+    async function fetchMessages() {
+      try {
+        const data = await api.get<Message[]>(`/api/messages?offerId=${offerId}`);
+        if (cancelled) return;
+        setMessages(data);
+        setError(null);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load messages");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
     fetchMessages();
     const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-  }, [fetchMessages]);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [offerId]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();

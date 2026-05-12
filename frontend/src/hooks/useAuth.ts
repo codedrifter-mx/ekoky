@@ -24,41 +24,45 @@ export function useAuth() {
   });
   const [loading, setLoading] = useState(false);
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      if (res.ok) {
-        const data = await res.json();
-        setAuthState({
-          authenticated: data.authenticated,
-          address: data.address,
-          hasProfile: data.hasProfile,
-          role: data.role,
-          name: data.name,
-        });
-      } else {
-        setAuthState({
-          authenticated: false,
-          address: null,
-          hasProfile: false,
-          role: null,
-          name: null,
-        });
-      }
-    } catch {
-      setAuthState({
-        authenticated: false,
-        address: null,
-        hasProfile: false,
-        role: null,
-        name: null,
-      });
-    }
-  }, []);
-
   useEffect(() => {
+    let cancelled = false;
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          setAuthState({
+            authenticated: data.authenticated,
+            address: data.address,
+            hasProfile: data.hasProfile,
+            role: data.role,
+            name: data.name,
+          });
+        } else {
+          setAuthState({
+            authenticated: false,
+            address: null,
+            hasProfile: false,
+            role: null,
+            name: null,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setAuthState({
+            authenticated: false,
+            address: null,
+            hasProfile: false,
+            role: null,
+            name: null,
+          });
+        }
+      }
+    }
     checkAuth();
-  }, [checkAuth]);
+    return () => { cancelled = true; };
+  }, []);
 
   const signIn = useCallback(async () => {
     if (!address || !isConnected) return;

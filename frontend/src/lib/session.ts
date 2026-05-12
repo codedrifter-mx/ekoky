@@ -7,7 +7,7 @@ const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME!;
 
 export async function getSession(): Promise<SessionData | null> {
   const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(cookieStore as any, {
+  const session = await getIronSession<SessionData>(cookieStore, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
   });
@@ -17,7 +17,7 @@ export async function getSession(): Promise<SessionData | null> {
 
 export async function setSession(data: SessionData): Promise<void> {
   const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(cookieStore as any, {
+  const session = await getIronSession<SessionData>(cookieStore, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
   });
@@ -28,7 +28,7 @@ export async function setSession(data: SessionData): Promise<void> {
 
 export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(cookieStore as any, {
+  const session = await getIronSession<SessionData>(cookieStore, {
     password: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
   });
