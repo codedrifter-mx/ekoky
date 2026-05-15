@@ -65,7 +65,21 @@ A blockchain-powered marketplace connecting food surplus businesses with redistr
                                 └─────────────────────────────┘
 ```
 
-## How to Run Locally
+---
+
+## Quick Start (Windows)
+
+```powershell
+# First time — install, configure, deploy, then start
+.\start.ps1 -Setup
+
+# After that — just start the services
+.\start.ps1
+```
+
+Press **Ctrl+C** to stop all services gracefully.
+
+## Manual Setup
 
 You need **Node.js v20+**, **npm v10+**, and **MetaMask** (or similar wallet).
 
