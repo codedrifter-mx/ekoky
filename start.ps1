@@ -28,17 +28,16 @@ function Write-Warn {
 
 $Script:HardhatProcess = $null
 $Script:FrontendProcess = $null
-$Script:HardhatJob = $null
 
 function Stop-ManagedProcesses {
     Write-Host ""
     Write-Step "Shutting down..."
     if ($Script:FrontendProcess -and -not $Script:FrontendProcess.HasExited) {
-        Stop-Process -Id $Script:FrontendProcess.Id -Force -ErrorAction SilentlyContinue
+        & taskkill /T /F /PID $Script:FrontendProcess.Id 2>$null | Out-Null
         Write-Success "Frontend dev server stopped"
     }
     if ($Script:HardhatProcess -and -not $Script:HardhatProcess.HasExited) {
-        Stop-Process -Id $Script:HardhatProcess.Id -Force -ErrorAction SilentlyContinue
+        & taskkill /T /F /PID $Script:HardhatProcess.Id 2>$null | Out-Null
         Write-Success "Hardhat node stopped"
     }
     Write-Success "Cleanup complete."
@@ -66,17 +65,19 @@ function Test-Prerequisites {
 function Install-Dependencies {
     Write-Step "[2/10] Installing contract dependencies..."
     Push-Location "$ProjectRoot\contracts"
-    npm install 2>&1 | ForEach-Object { $_.ToString() }
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Failed to install contract dependencies"; Pop-Location; exit 1 }
-    Write-Success "Contract dependencies installed"
-    Pop-Location
+    try {
+        npm install 2>&1 | ForEach-Object { $_.ToString() }
+        if ($LASTEXITCODE -ne 0) { Write-Fail "Failed to install contract dependencies"; exit 1 }
+        Write-Success "Contract dependencies installed"
+    } finally { Pop-Location }
 
     Write-Step "[3/10] Installing frontend dependencies..."
     Push-Location "$ProjectRoot\frontend"
-    npm install 2>&1 | ForEach-Object { $_.ToString() }
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Failed to install frontend dependencies"; Pop-Location; exit 1 }
-    Write-Success "Frontend dependencies installed"
-    Pop-Location
+    try {
+        npm install 2>&1 | ForEach-Object { $_.ToString() }
+        if ($LASTEXITCODE -ne 0) { Write-Fail "Failed to install frontend dependencies"; exit 1 }
+        Write-Success "Frontend dependencies installed"
+    } finally { Pop-Location }
 }
 
 function Set-Environment {
@@ -94,17 +95,19 @@ function Set-Environment {
 function Initialize-Database {
     Write-Step "[5/10] Running database migrations..."
     Push-Location "$ProjectRoot\frontend"
-    npx prisma migrate dev 2>&1 | ForEach-Object { $_.ToString() }
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Prisma migrate failed"; Pop-Location; exit 1 }
-    Write-Success "Database migrated"
-    Pop-Location
+    try {
+        npx prisma migrate dev 2>&1 | ForEach-Object { $_.ToString() }
+        if ($LASTEXITCODE -ne 0) { Write-Fail "Prisma migrate failed"; exit 1 }
+        Write-Success "Database migrated"
+    } finally { Pop-Location }
 
     Write-Step "[6/10] Seeding database..."
     Push-Location "$ProjectRoot\frontend"
-    npx prisma db seed 2>&1 | ForEach-Object { $_.ToString() }
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Prisma seed failed"; Pop-Location; exit 1 }
-    Write-Success "Database seeded"
-    Pop-Location
+    try {
+        npx prisma db seed 2>&1 | ForEach-Object { $_.ToString() }
+        if ($LASTEXITCODE -ne 0) { Write-Fail "Prisma seed failed"; exit 1 }
+        Write-Success "Database seeded"
+    } finally { Pop-Location }
 }
 
 function Start-HardhatNode {
@@ -113,6 +116,7 @@ function Start-HardhatNode {
     $portInUse = Get-NetTCPConnection -LocalPort 8545 -ErrorAction SilentlyContinue
     if ($portInUse) {
         Write-Warn "Port 8545 already in use (PID $($portInUse[0].OwningProcess)). Skipping Hardhat start."
+        Write-Warn "Existing chain state will be used. Deploy step may fail if contracts are not deployed."
         return
     }
 
@@ -149,20 +153,21 @@ function Start-HardhatNode {
 function Deploy-Contracts {
     Write-Step "[8/10] Deploying contracts..."
     Push-Location "$ProjectRoot\contracts"
-    $output = npx hardhat run scripts/deploy.ts --network localhost 2>&1 | ForEach-Object { $_.ToString() }
-    Write-Host $output
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Contract deployment failed"; Pop-Location; exit 1 }
+    try {
+        $output = npx hardhat run scripts/deploy.ts --network localhost 2>&1 | ForEach-Object { $_.ToString() }
+        Write-Host ($output -join "`n")
+        if ($LASTEXITCODE -ne 0) { Write-Fail "Contract deployment failed"; exit 1 }
 
-    Write-Step "[9/10] Deployed contract addresses:"
-    $outputStr = $output -join "`n"
-    $tokenAddr = if ($outputStr -match "EkokyToken deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
-    $registryAddr = if ($outputStr -match "OfferRegistry deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
-    $stakingAddr = if ($outputStr -match "Staking deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
-    Write-Host "  EkokyToken:    $tokenAddr"
-    Write-Host "  OfferRegistry: $registryAddr"
-    Write-Host "  Staking:       $stakingAddr"
-    Write-Warn "If these differ from frontend/src/lib/contracts.ts, update them manually."
-    Pop-Location
+        Write-Step "[9/10] Deployed contract addresses:"
+        $outputStr = $output -join "`n"
+        $tokenAddr = if ($outputStr -match "EkokyToken deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
+        $registryAddr = if ($outputStr -match "OfferRegistry deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
+        $stakingAddr = if ($outputStr -match "Staking deployed to:\s+(0x[a-fA-F0-9]+)") { $Matches[1] } else { "NOT FOUND" }
+        Write-Host "  EkokyToken:    $tokenAddr"
+        Write-Host "  OfferRegistry: $registryAddr"
+        Write-Host "  Staking:       $stakingAddr"
+        Write-Warn "If these differ from frontend/src/lib/contracts.ts, update them manually."
+    } finally { Pop-Location }
 }
 
 function Start-Frontend {
