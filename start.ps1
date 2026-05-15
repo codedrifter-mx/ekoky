@@ -31,13 +31,15 @@ $Script:FrontendProcess = $null
 $Script:HardhatJob = $null
 
 function Stop-ManagedProcesses {
+    Write-Host ""
+    Write-Step "Shutting down..."
     if ($Script:FrontendProcess -and -not $Script:FrontendProcess.HasExited) {
-        Write-Step "Stopping frontend dev server (PID $($Script:FrontendProcess.Id))..."
         Stop-Process -Id $Script:FrontendProcess.Id -Force -ErrorAction SilentlyContinue
+        Write-Success "Frontend dev server stopped"
     }
     if ($Script:HardhatProcess -and -not $Script:HardhatProcess.HasExited) {
-        Write-Step "Stopping Hardhat node (PID $($Script:HardhatProcess.Id))..."
         Stop-Process -Id $Script:HardhatProcess.Id -Force -ErrorAction SilentlyContinue
+        Write-Success "Hardhat node stopped"
     }
     Write-Success "Cleanup complete."
 }
@@ -106,15 +108,16 @@ function Initialize-Database {
 }
 
 function Start-HardhatNode {
-    Write-Step "[7/10] Starting Hardhat node..."
+    param([string]$Label = "[7/10]")
+    Write-Step "$Label Starting Hardhat node..."
     $portInUse = Get-NetTCPConnection -LocalPort 8545 -ErrorAction SilentlyContinue
     if ($portInUse) {
         Write-Warn "Port 8545 already in use (PID $($portInUse[0].OwningProcess)). Skipping Hardhat start."
         return
     }
 
-    $Script:HardhatProcess = Start-Process -FilePath "node" `
-        -ArgumentList "$ProjectRoot\contracts\node_modules\.bin\hardhat", "node" `
+    $Script:HardhatProcess = Start-Process -FilePath "cmd.exe" `
+        -ArgumentList "/c", "npx hardhat node" `
         -WorkingDirectory "$ProjectRoot\contracts" `
         -PassThru `
         -NoNewWindow `
@@ -140,7 +143,6 @@ function Start-HardhatNode {
         }
     }
     Write-Fail "Hardhat node did not start within ${timeout}s"
-    Stop-ManagedProcesses
     exit 1
 }
 
@@ -149,7 +151,7 @@ function Deploy-Contracts {
     Push-Location "$ProjectRoot\contracts"
     $output = npx hardhat run scripts/deploy.ts --network localhost 2>&1 | ForEach-Object { $_.ToString() }
     Write-Host $output
-    if ($LASTEXITCODE -ne 0) { Write-Fail "Contract deployment failed"; Pop-Location; Stop-ManagedProcesses; exit 1 }
+    if ($LASTEXITCODE -ne 0) { Write-Fail "Contract deployment failed"; Pop-Location; exit 1 }
 
     Write-Step "[9/10] Deployed contract addresses:"
     $outputStr = $output -join "`n"
@@ -164,7 +166,8 @@ function Deploy-Contracts {
 }
 
 function Start-Frontend {
-    Write-Step "[10/10] Starting frontend dev server..."
+    param([string]$Label = "[10/10]")
+    Write-Step "$Label Starting frontend dev server..."
     $portInUse = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue
     if ($portInUse) {
         Write-Warn "Port 3000 already in use (PID $($portInUse[0].OwningProcess)). Frontend may fail to start."
@@ -191,12 +194,12 @@ try {
         Install-Dependencies
         Set-Environment
         Initialize-Database
-        Start-HardhatNode
+        Start-HardhatNode -Label "[7/10]"
         Deploy-Contracts
-        Start-Frontend
+        Start-Frontend -Label "[10/10]"
     } else {
-        Start-HardhatNode
-        Start-Frontend
+        Start-HardhatNode -Label "[1/2]"
+        Start-Frontend -Label "[2/2]"
     }
 
     while ($true) { Start-Sleep -Seconds 1 }
