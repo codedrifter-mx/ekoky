@@ -62,7 +62,7 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-muted font-mono text-sm">Loading...</p>
       </div>
     );
   }
@@ -70,11 +70,11 @@ export default function DashboardPage() {
   if (!authenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-        <h1 className="text-3xl font-bold text-green-600">Dashboard</h1>
-        <p className="text-gray-600">Please sign in to view your dashboard.</p>
+        <h1 className="font-serif text-4xl">Dashboard</h1>
+        <p className="text-muted">Please sign in to view your dashboard.</p>
         <Link
           href="/login"
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+          className="bg-accent text-white px-8 py-3 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
         >
           Sign In
         </Link>
@@ -85,11 +85,11 @@ export default function DashboardPage() {
   if (!hasProfile) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-        <h1 className="text-3xl font-bold text-green-600">Dashboard</h1>
-        <p className="text-gray-600">Please complete your profile setup.</p>
+        <h1 className="font-serif text-4xl">Dashboard</h1>
+        <p className="text-muted">Please complete your profile setup.</p>
         <Link
           href="/register"
-          className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition font-semibold"
+          className="bg-accent text-white px-8 py-3 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
         >
           Create Profile
         </Link>
@@ -98,34 +98,34 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-green-600">
+        <h1 className="font-serif text-4xl">
           {role === "BUSINESS" ? "Business Dashboard" : "Institution Dashboard"}
         </h1>
         {role === "BUSINESS" ? (
           <Link
             href="/offers/new"
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold"
+            className="bg-accent text-white px-5 py-2.5 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
           >
             Create New Offer
           </Link>
         ) : (
           <Link
             href="/explore"
-            className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition font-semibold"
+            className="bg-accent text-white px-5 py-2.5 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
           >
             Browse All Offers
           </Link>
         )}
       </div>
 
-      {loading && <p className="text-gray-500">Loading offers...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && <p className="text-muted font-mono text-sm">Loading offers...</p>}
+      {error && <p className="text-pale-red-text text-sm font-mono">{error}</p>}
       {!loading && !error && offers.length === 0 && (
-        <p className="text-gray-500">No offers found.</p>
+        <p className="text-muted">No offers found.</p>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {offers.map((offer) => (
           <OfferCard key={offer.id} offer={offer} />
         ))}

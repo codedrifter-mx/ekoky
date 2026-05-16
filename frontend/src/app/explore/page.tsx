@@ -70,8 +70,8 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-green-600">Explore Offers</h1>
+    <div className="space-y-8">
+      <h1 className="font-serif text-4xl">Explore Offers</h1>
       <SearchBar
         search={query.search}
         category={query.category}
@@ -79,38 +79,38 @@ export default function ExplorePage() {
         onCategoryChange={handleCategoryChange}
       />
 
-      {loading && <p className="text-gray-500">Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && <p className="text-muted font-mono text-sm">Loading...</p>}
+      {error && <p className="text-pale-red-text text-sm font-mono">{error}</p>}
       {!loading && !error && offers.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No offers available</p>
+        <div className="text-center py-16">
+          <p className="text-muted">No offers available</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {offers.map((offer) => (
           <OfferCard key={offer.id} offer={offer} />
         ))}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-between items-center pt-4">
+        <div className="flex justify-between items-center pt-4 border-t border-border">
           <button
             onClick={() => handlePageChange(Math.max(1, query.page - 1))}
             disabled={query.page === 1}
-            className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition"
+            className="px-4 py-2 rounded-[4px] border border-border text-sm hover:bg-surface-alt disabled:opacity-40 transition-colors font-mono"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-600">
-            Page {query.page} of {totalPages}
+          <span className="text-xs font-mono text-muted tracking-wider">
+            {query.page} / {totalPages}
           </span>
           <button
             onClick={() =>
               handlePageChange(Math.min(totalPages, query.page + 1))
             }
             disabled={query.page === totalPages}
-            className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition"
+            className="px-4 py-2 rounded-[4px] border border-border text-sm hover:bg-surface-alt disabled:opacity-40 transition-colors font-mono"
           >
             Next
           </button>

@@ -40,8 +40,6 @@ export default function RegisterPage() {
         location: location.trim() || undefined,
       });
 
-      // Profile created successfully — redirect to dashboard
-      // On-chain registration happens later when user creates an offer or expresses interest
       router.push("/dashboard");
     } catch (err) {
       const message =
@@ -56,11 +54,11 @@ export default function RegisterPage() {
   if (!authenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-        <h1 className="text-3xl font-bold text-green-600">Create your profile</h1>
-        <p className="text-gray-600">Please sign in first to create a profile.</p>
+        <h1 className="font-serif text-4xl">Create your profile</h1>
+        <p className="text-muted">Please sign in first to create a profile.</p>
         <Link
           href="/login"
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+          className="bg-accent text-white px-8 py-3 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
         >
           Go to Login
         </Link>
@@ -69,26 +67,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 py-8">
+    <div className="max-w-2xl mx-auto space-y-10 py-8">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-green-600">Create your profile</h1>
-        <p className="text-gray-600">
+        <h1 className="font-serif text-4xl">Create your profile</h1>
+        <p className="text-muted">
           Tell us who you are and how you want to participate.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border rounded-[8px] overflow-hidden">
         <button
           type="button"
           onClick={() => setRole("BUSINESS")}
-          className={`p-6 rounded-lg border-2 text-left transition ${
+          className={`p-8 text-left transition-colors ${
             role === "BUSINESS"
-              ? "border-green-600 bg-green-50"
-              : "border-gray-200 bg-white hover:border-green-300"
+              ? "bg-surface"
+              : "bg-surface-alt hover:bg-surface"
           }`}
+          style={role === "BUSINESS" ? { boxShadow: "inset 0 0 0 2px #111111" } : undefined}
         >
-          <h3 className="text-xl font-bold text-green-700 mb-2">Business</h3>
-          <p className="text-gray-600 text-sm">
+          <h3 className="text-lg font-semibold mb-2">Business</h3>
+          <p className="text-muted text-sm leading-relaxed">
             I have surplus food to donate or sell at a discount.
           </p>
         </button>
@@ -96,14 +95,15 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={() => setRole("INSTITUTION")}
-          className={`p-6 rounded-lg border-2 text-left transition ${
+          className={`p-8 text-left transition-colors ${
             role === "INSTITUTION"
-              ? "border-teal-600 bg-teal-50"
-              : "border-gray-200 bg-white hover:border-teal-300"
+              ? "bg-surface"
+              : "bg-surface-alt hover:bg-surface"
           }`}
+          style={role === "INSTITUTION" ? { boxShadow: "inset 0 0 0 2px #111111" } : undefined}
         >
-          <h3 className="text-xl font-bold text-teal-700 mb-2">Institution</h3>
-          <p className="text-gray-600 text-sm">
+          <h3 className="text-lg font-semibold mb-2">Institution</h3>
+          <p className="text-muted text-sm leading-relaxed">
             I collect and redistribute food to those in need.
           </p>
         </button>
@@ -112,14 +112,14 @@ export default function RegisterPage() {
       {role && (
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-lg shadow-md border space-y-6"
+          className="border border-border rounded-[8px] p-8 space-y-6"
         >
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-2"
             >
-              Name <span className="text-red-500">*</span>
+              Name <span className="text-pale-red-text">*</span>
             </label>
             <input
               id="name"
@@ -128,14 +128,14 @@ export default function RegisterPage() {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="Your organization name"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-border bg-surface rounded-[4px] px-4 py-2.5 text-sm focus:border-accent"
             />
           </div>
 
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-2"
             >
               Description
             </label>
@@ -145,14 +145,14 @@ export default function RegisterPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A short description of your organization"
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-border bg-surface rounded-[4px] px-4 py-2.5 text-sm focus:border-accent resize-none"
             />
           </div>
 
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-2"
             >
               Location
             </label>
@@ -162,20 +162,20 @@ export default function RegisterPage() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="City, Country"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full border border-border bg-surface rounded-[4px] px-4 py-2.5 text-sm focus:border-accent"
             />
           </div>
 
           {apiError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-700 text-sm">{apiError}</p>
+            <div className="bg-pale-red-bg/50 border border-pale-red-bg rounded-[4px] p-3">
+              <p className="text-pale-red-text text-xs font-mono">{apiError}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={submitting || !name.trim()}
-            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
+            className="w-full bg-accent text-white py-3 px-6 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
           >
             {submitting ? "Creating profile..." : "Create Profile"}
           </button>

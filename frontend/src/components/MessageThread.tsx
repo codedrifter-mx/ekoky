@@ -69,36 +69,36 @@ export function MessageThread({ offerId, receiverId }: MessageThreadProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md border p-6">
-        <p className="text-gray-500">Loading messages...</p>
+      <div className="border border-border rounded-[8px] p-6">
+        <p className="text-muted text-sm font-mono">Loading messages...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md border p-6 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800">Messages</h3>
+    <div className="border border-border rounded-[8px] p-6 space-y-4">
+      <h3 className="text-sm font-semibold uppercase tracking-wider">Messages</h3>
 
       {messages.length === 0 ? (
-        <p className="text-gray-500 text-sm">
-          No messages yet. Start the conversation!
+        <p className="text-muted text-sm leading-relaxed">
+          No messages yet. Start the conversation.
         </p>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className="border-b border-gray-100 pb-3 last:border-0"
+              className="border-b border-border pb-3 last:border-0"
             >
               <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-sm text-gray-800">
+                <span className="font-medium text-sm">
                   {msg.sender.name}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-[10px] font-mono text-muted tracking-wider">
                   {new Date(msg.createdAt).toLocaleString()}
                 </span>
               </div>
-              <p className="text-sm text-gray-700">{msg.content}</p>
+              <p className="text-sm text-muted leading-relaxed">{msg.content}</p>
             </div>
           ))}
         </div>
@@ -110,19 +110,19 @@ export function MessageThread({ offerId, receiverId }: MessageThreadProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="flex-1 border border-border bg-surface rounded-[4px] px-4 py-2 text-sm focus:border-accent"
           disabled={sending}
         />
         <button
           type="submit"
           disabled={sending || !content.trim()}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:bg-gray-400 transition"
+          className="bg-accent text-white px-4 py-2 rounded-[4px] text-sm hover:bg-[#333333] disabled:bg-muted/30 transition-colors font-medium tracking-wide"
         >
           {sending ? "Sending..." : "Send"}
         </button>
       </form>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-pale-red-text text-xs font-mono">{error}</p>}
     </div>
   );
 }

@@ -43,11 +43,11 @@ export function SearchBar({
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
           placeholder="Search offers..."
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="flex-1 border border-border bg-surface rounded-[4px] px-4 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent"
         />
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium"
+          className="bg-accent text-white px-5 py-2 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide"
         >
           Search
         </button>
@@ -57,10 +57,10 @@ export function SearchBar({
           <button
             key={cat}
             onClick={() => onCategoryChange(cat)}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+            className={`px-3 py-1 rounded-[9999px] text-xs font-mono uppercase tracking-[0.06em] transition-colors ${
               category === cat
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-accent text-white"
+                : "bg-surface-alt text-muted hover:text-foreground"
             }`}
           >
             {cat}

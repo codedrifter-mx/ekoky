@@ -34,62 +34,46 @@ export default function ImpactPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
-        <h1 className="text-3xl font-bold text-green-600">Impact Dashboard</h1>
-        <p className="text-gray-500">Loading impact metrics...</p>
+      <div className="space-y-10">
+        <h1 className="font-serif text-4xl">Impact Dashboard</h1>
+        <p className="text-muted font-mono text-sm">Loading impact metrics...</p>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="space-y-8">
-        <h1 className="text-3xl font-bold text-green-600">Impact Dashboard</h1>
-        <p className="text-red-600">{error || "No data available"}</p>
+      <div className="space-y-10">
+        <h1 className="font-serif text-4xl">Impact Dashboard</h1>
+        <p className="text-pale-red-text text-sm font-mono">{error || "No data available"}</p>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-green-600">Impact Dashboard</h1>
+  const stats = [
+    { label: "Total Offers", value: data.totalOffers, color: "" },
+    { label: "Active Offers", value: data.activeOffers, color: "text-pale-green-text" },
+    { label: "Fulfilled Offers", value: data.fulfilledOffers, color: "text-pale-blue-text" },
+    { label: "Total Businesses", value: data.totalBusinesses, color: "" },
+    { label: "Total Institutions", value: data.totalInstitutions, color: "" },
+    { label: "Food Diverted", value: `${data.foodDivertedKg.toLocaleString()} kg`, color: "text-pale-green-text" },
+    { label: "CO2 Saved", value: `${data.co2SavedKg.toLocaleString()} kg`, color: "text-pale-teal-text" },
+  ];
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">📋</div>
-          <p className="text-sm text-gray-500">Total Offers</p>
-          <p className="text-2xl font-bold text-gray-800">{data.totalOffers}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">🟢</div>
-          <p className="text-sm text-gray-500">Active Offers</p>
-          <p className="text-2xl font-bold text-green-600">{data.activeOffers}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">✅</div>
-          <p className="text-sm text-gray-500">Fulfilled Offers</p>
-          <p className="text-2xl font-bold text-blue-600">{data.fulfilledOffers}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">🏢</div>
-          <p className="text-sm text-gray-500">Total Businesses</p>
-          <p className="text-2xl font-bold text-gray-800">{data.totalBusinesses}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">🏛️</div>
-          <p className="text-sm text-gray-500">Total Institutions</p>
-          <p className="text-2xl font-bold text-gray-800">{data.totalInstitutions}</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">🍎</div>
-          <p className="text-sm text-gray-500">Food Diverted</p>
-          <p className="text-2xl font-bold text-green-600">{data.foodDivertedKg.toLocaleString()} kg</p>
-        </div>
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="text-3xl mb-3">🌱</div>
-          <p className="text-sm text-gray-500">CO2 Saved</p>
-          <p className="text-2xl font-bold text-teal-600">{data.co2SavedKg.toLocaleString()} kg</p>
-        </div>
+  return (
+    <div className="space-y-10">
+      <div>
+        <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted mb-3">Metrics</p>
+        <h1 className="font-serif text-5xl">Impact Dashboard</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-[8px] overflow-hidden">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-surface p-6">
+            <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-2">{stat.label}</p>
+            <p className={`text-2xl font-semibold ${stat.color || "text-foreground"}`}>{stat.value}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

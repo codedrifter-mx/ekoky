@@ -35,12 +35,12 @@ const categoryLabels: Record<OfferCategory, string> = {
   MIXED: "Mixed",
 };
 
-const statusColors: Record<OfferStatus, string> = {
-  ACTIVE: "bg-green-100 text-green-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  PENDING_FULFILLMENT: "bg-yellow-100 text-yellow-800",
-  FULFILLED: "bg-blue-100 text-blue-800",
-  EXPIRED: "bg-gray-100 text-gray-800",
+const statusStyles: Record<OfferStatus, string> = {
+  ACTIVE: "bg-pale-green-bg text-pale-green-text",
+  CANCELLED: "bg-pale-red-bg text-pale-red-text",
+  PENDING_FULFILLMENT: "bg-pale-yellow-bg text-pale-yellow-text",
+  FULFILLED: "bg-pale-blue-bg text-pale-blue-text",
+  EXPIRED: "bg-surface-alt text-muted",
 };
 
 export default function OfferDetailPage() {
@@ -61,9 +61,7 @@ export default function OfferDetailPage() {
   const [expressing, setExpressing] = useState(false);
   const [expressError, setExpressError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
-  const [updatingInterestId, setUpdatingInterestId] = useState<string | null>(
-    null
-  );
+  const [updatingInterestId, setUpdatingInterestId] = useState<string | null>(null);
 
   const id = params.id as string;
 
@@ -74,9 +72,7 @@ export default function OfferDetailPage() {
         const data = await api.get<OfferDetail>(`/api/offers/${id}`);
         setOffer(data);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load offer"
-        );
+        setError(err instanceof Error ? err.message : "Failed to load offer");
       } finally {
         setLoading(false);
       }
@@ -84,26 +80,16 @@ export default function OfferDetailPage() {
     fetchOffer();
   }, [id]);
 
-  const isOwner = offer
-    ? offer.creator.address.toLowerCase() === address?.toLowerCase()
-    : false;
+  const isOwner = offer ? offer.creator.address.toLowerCase() === address?.toLowerCase() : false;
   const isExpired = offer ? new Date(offer.expiresAt) < new Date() : false;
-  const hasExpressedInterest =
-    offer && address
-      ? offer.interests.some(
-          (i) =>
-            i.institution.address.toLowerCase() === address.toLowerCase()
-        )
-      : false;
+  const hasExpressedInterest = offer && address
+    ? offer.interests.some((i) => i.institution.address.toLowerCase() === address.toLowerCase())
+    : false;
 
-  const acceptedInterest = offer?.interests.find(
-    (i) => i.status === "ACCEPTED"
-  );
-  const isAcceptedInstitution =
-    acceptedInterest && address
-      ? acceptedInterest.institution.address.toLowerCase() ===
-        address.toLowerCase()
-      : false;
+  const acceptedInterest = offer?.interests.find((i) => i.status === "ACCEPTED");
+  const isAcceptedInstitution = acceptedInterest && address
+    ? acceptedInterest.institution.address.toLowerCase() === address.toLowerCase()
+    : false;
   const canMessage = isOwner || isAcceptedInstitution;
   const receiverId = isOwner
     ? acceptedInterest?.institution.id
@@ -118,9 +104,7 @@ export default function OfferDetailPage() {
       await api.delete(`/api/offers/${offer.id}`);
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to cancel offer"
-      );
+      setError(err instanceof Error ? err.message : "Failed to cancel offer");
       setCancelling(false);
     }
   };
@@ -131,198 +115,149 @@ export default function OfferDetailPage() {
     setExpressing(true);
     setExpressError(null);
     try {
-      await api.post("/api/interests", {
-        offerId: offer.id,
-        message: interestMessage.trim() || undefined,
-      });
+      await api.post("/api/interests", { offerId: offer.id, message: interestMessage.trim() || undefined });
       const data = await api.get<OfferDetail>(`/api/offers/${offer.id}`);
       setOffer(data);
       setInterestMessage("");
     } catch (err) {
-      setExpressError(
-        err instanceof Error ? err.message : "Failed to express interest"
-      );
+      setExpressError(err instanceof Error ? err.message : "Failed to express interest");
     } finally {
       setExpressing(false);
     }
   };
 
-  const handleUpdateInterest = async (
-    interestId: string,
-    status: "ACCEPTED" | "REJECTED"
-  ) => {
+  const handleUpdateInterest = async (interestId: string, status: "ACCEPTED" | "REJECTED") => {
     setUpdatingInterestId(interestId);
     try {
       await api.patch("/api/interests", { interestId, status });
       const data = await api.get<OfferDetail>(`/api/offers/${id}`);
       setOffer(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update interest"
-      );
+      setError(err instanceof Error ? err.message : "Failed to update interest");
     } finally {
       setUpdatingInterestId(null);
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  if (error) return <p className="text-red-600">{error}</p>;
-  if (!offer) return <p className="text-gray-500">Offer not found.</p>;
+  if (loading) return <div className="flex items-center justify-center min-h-[40vh]"><p className="text-muted font-mono text-sm">Loading...</p></div>;
+  if (error) return <p className="text-pale-red-text text-sm font-mono">{error}</p>;
+  if (!offer) return <p className="text-muted">Offer not found.</p>;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 py-8">
+    <div className="max-w-3xl mx-auto space-y-8 py-8">
       <div className="flex flex-wrap gap-2">
-        <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2.5 py-0.5 rounded">
+        <span className="bg-pale-teal-bg text-pale-teal-text text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px]">
           {categoryLabels[offer.category]}
         </span>
-        <span
-          className={`text-xs font-medium px-2.5 py-0.5 rounded ${statusColors[offer.status]}`}
-        >
+        <span className={`text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px] ${statusStyles[offer.status]}`}>
           {offer.status.replace("_", " ")}
         </span>
       </div>
 
-      <h1 className="text-3xl font-bold text-green-600">{offer.title}</h1>
-      <p className="text-gray-600">{offer.description}</p>
+      <h1 className="font-serif text-4xl">{offer.title}</h1>
+      <p className="text-muted leading-relaxed">{offer.description}</p>
 
-      <div className="bg-white rounded-lg shadow-md border p-6 space-y-3">
+      <div className="border border-border rounded-[8px] p-6 space-y-3">
         {offer.quantity && (
-          <p className="text-gray-700">
-            <span className="font-medium">Quantity:</span> {offer.quantity}
-          </p>
+          <div className="flex justify-between py-2 border-b border-border">
+            <span className="text-muted text-sm">Quantity</span>
+            <span className="text-sm font-medium">{offer.quantity}</span>
+          </div>
         )}
         {offer.pickupAddress && (
-          <p className="text-gray-700">
-            <span className="font-medium">Pickup Address:</span>{" "}
-            {offer.pickupAddress}
-          </p>
+          <div className="flex justify-between py-2 border-b border-border">
+            <span className="text-muted text-sm">Pickup Address</span>
+            <span className="text-sm font-medium">{offer.pickupAddress}</span>
+          </div>
         )}
-        <p className="text-gray-700">
-          <span className="font-medium">Expires:</span>{" "}
-          {new Date(offer.expiresAt).toLocaleString()}
-        </p>
-        <p className="text-gray-700">
-          <span className="font-medium">Posted:</span>{" "}
-          {new Date(offer.createdAt).toLocaleDateString()}
-        </p>
-        <p className="text-gray-700">
-          <span className="font-medium">Posted by:</span> {offer.creator.name}
-        </p>
+        <div className="flex justify-between py-2 border-b border-border">
+          <span className="text-muted text-sm">Expires</span>
+          <span className="text-sm font-mono">{new Date(offer.expiresAt).toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between py-2 border-b border-border">
+          <span className="text-muted text-sm">Posted</span>
+          <span className="text-sm font-mono">{new Date(offer.createdAt).toLocaleDateString()}</span>
+        </div>
+        <div className="flex justify-between py-2">
+          <span className="text-muted text-sm">Posted by</span>
+          <span className="text-sm font-medium">{offer.creator.name}</span>
+        </div>
       </div>
 
       {isOwner && offer.status === "ACTIVE" && (
         <button
           onClick={handleCancel}
           disabled={cancelling}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition"
+          className="border border-pale-red-bg text-pale-red-text px-4 py-2 rounded-[4px] hover:bg-pale-red-bg/30 disabled:opacity-40 transition-colors text-sm font-medium tracking-wide"
         >
           {cancelling ? "Cancelling..." : "Cancel Offer"}
         </button>
       )}
 
-      {authenticated &&
-        hasProfile &&
-        role === "INSTITUTION" &&
-        offer.status === "ACTIVE" &&
-        !isExpired && (
-          <div className="bg-white rounded-lg shadow-md border p-6">
-            {checkingInstitution ? (
-              <p className="text-gray-500">Checking on-chain registration...</p>
-            ) : !isInstitution ? (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  On-chain Registration Required
-                </h3>
-                <p className="text-gray-600">
-                  Before expressing interest, you need to register your institution on the blockchain.
-                  This is a one-time transaction.
-                </p>
-                {!isConnected ? (
-                  <p className="text-orange-600">Please connect your wallet first.</p>
-                ) : (
-                  <button
-                    onClick={registerInstitution}
-                    disabled={registering || registered}
-                    className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 transition"
-                  >
-                    {registering
-                      ? "Confirming..."
-                      : registered
-                      ? "Registered!"
-                      : "Register Institution On-chain"}
-                  </button>
-                )}
-                {registered && (
-                  <p className="text-green-600">
-                    Registration successful! You can now express interest.
-                  </p>
-                )}
-              </div>
-            ) : hasExpressedInterest ? (
-              <p className="text-green-700 font-medium">
-                You have already expressed interest in this offer.
+      {authenticated && hasProfile && role === "INSTITUTION" && offer.status === "ACTIVE" && !isExpired && (
+        <div className="border border-border rounded-[8px] p-6">
+          {checkingInstitution ? (
+            <p className="text-muted font-mono text-sm">Checking on-chain registration...</p>
+          ) : !isInstitution ? (
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider">On-chain Registration Required</h3>
+              <p className="text-muted text-sm leading-relaxed">
+                Before expressing interest, you need to register your institution on the blockchain. This is a one-time transaction.
               </p>
-            ) : (
-              <form onSubmit={handleExpressInterest} className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Express Interest
-                </h3>
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Message (optional)
-                  </label>
-                  <textarea
-                    id="message"
-                    value={interestMessage}
-                    onChange={(e) => setInterestMessage(e.target.value)}
-                    rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Add a message to the business..."
-                  />
-                </div>
-                {expressError && (
-                  <p className="text-red-600 text-sm">{expressError}</p>
-                )}
+              {!isConnected ? (
+                <p className="text-pale-yellow-text text-sm">Please connect your wallet first.</p>
+              ) : (
                 <button
-                  type="submit"
-                  disabled={expressing}
-                  className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 transition"
+                  onClick={registerInstitution}
+                  disabled={registering || registered}
+                  className="bg-accent text-white px-4 py-2.5 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
                 >
-                  {expressing ? "Submitting..." : "Express Interest"}
+                  {registering ? "Confirming..." : registered ? "Registered" : "Register Institution On-chain"}
                 </button>
-              </form>
-            )}
-          </div>
-        )}
-
-      {isOwner && offer.interests.length > 0 && (
-        <InterestList
-          interests={offer.interests}
-          isOwner={isOwner}
-          onUpdateStatus={handleUpdateInterest}
-          updatingId={updatingInterestId}
-        />
+              )}
+              {registered && <p className="text-pale-green-text text-xs font-mono">Registration successful. You can now express interest.</p>}
+            </div>
+          ) : hasExpressedInterest ? (
+            <p className="text-pale-green-text font-medium text-sm">
+              You have already expressed interest in this offer.
+            </p>
+          ) : (
+            <form onSubmit={handleExpressInterest} className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider">Express Interest</h3>
+              <div>
+                <label htmlFor="message" className="block text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-2">Message (optional)</label>
+                <textarea
+                  id="message"
+                  value={interestMessage}
+                  onChange={(e) => setInterestMessage(e.target.value)}
+                  rows={3}
+                  className="w-full border border-border bg-surface rounded-[4px] px-4 py-2.5 text-sm focus:border-accent resize-none"
+                  placeholder="Add a message to the business..."
+                />
+              </div>
+              {expressError && <p className="text-pale-red-text text-xs font-mono">{expressError}</p>}
+              <button
+                type="submit"
+                disabled={expressing}
+                className="bg-accent text-white px-4 py-2.5 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
+              >
+                {expressing ? "Submitting..." : "Express Interest"}
+              </button>
+            </form>
+          )}
+        </div>
       )}
 
-      {(offer.status === "PENDING_FULFILLMENT" || offer.status === "FULFILLED") &&
-        canMessage &&
-        receiverId && (
-          <MessageThread offerId={offer.id} receiverId={receiverId} />
-        )}
+      {isOwner && offer.interests.length > 0 && (
+        <InterestList interests={offer.interests} isOwner={isOwner} onUpdateStatus={handleUpdateInterest} updatingId={updatingInterestId} />
+      )}
+
+      {(offer.status === "PENDING_FULFILLMENT" || offer.status === "FULFILLED") && canMessage && receiverId && (
+        <MessageThread offerId={offer.id} receiverId={receiverId} />
+      )}
 
       <div className="pt-4">
-        <Link
-          href="/explore"
-          className="text-green-600 hover:underline font-medium"
-        >
+        <Link href="/explore" className="text-muted hover:text-foreground font-mono text-xs uppercase tracking-wider transition-colors">
           &larr; Back to Explore
         </Link>
       </div>

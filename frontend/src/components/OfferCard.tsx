@@ -46,12 +46,12 @@ const categoryLabels: Record<OfferCategory, string> = {
   MIXED: "Mixed",
 };
 
-const statusColors: Record<OfferStatus, string> = {
-  ACTIVE: "bg-green-100 text-green-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  PENDING_FULFILLMENT: "bg-yellow-100 text-yellow-800",
-  FULFILLED: "bg-blue-100 text-blue-800",
-  EXPIRED: "bg-gray-100 text-gray-800",
+const statusStyles: Record<OfferStatus, string> = {
+  ACTIVE: "bg-pale-green-bg text-pale-green-text",
+  CANCELLED: "bg-pale-red-bg text-pale-red-text",
+  PENDING_FULFILLMENT: "bg-pale-yellow-bg text-pale-yellow-text",
+  FULFILLED: "bg-pale-blue-bg text-pale-blue-text",
+  EXPIRED: "bg-surface-alt text-muted",
 };
 
 function isExpiringSoon(expiresAt: string): boolean {
@@ -65,44 +65,42 @@ export function OfferCard({ offer }: OfferCardProps) {
   const interestCount = offer.interests?.length ?? 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-      <div className="flex flex-wrap gap-2 mb-3">
-        <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2.5 py-0.5 rounded">
-          {categoryLabels[offer.category]}
-        </span>
-        <span
-          className={`text-xs font-medium px-2.5 py-0.5 rounded ${statusColors[offer.status]}`}
-        >
-          {offer.status.replace("_", " ")}
-        </span>
-        {isExpiringSoon(offer.expiresAt) && (
-          <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">
-            Expires soon
+    <Link href={`/offers/${offer.id}`} className="block group">
+      <div className="bg-surface border border-border p-6 rounded-[8px] transition-shadow group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="bg-pale-teal-bg text-pale-teal-text text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px]">
+            {categoryLabels[offer.category]}
           </span>
-        )}
-      </div>
-      <h3 className="text-lg font-semibold text-green-700 mb-2">
-        <Link href={`/offers/${offer.id}`} className="hover:underline">
+          <span className={`text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px] ${statusStyles[offer.status]}`}>
+            {offer.status.replace("_", " ")}
+          </span>
+          {isExpiringSoon(offer.expiresAt) && (
+            <span className="bg-pale-yellow-bg text-pale-yellow-text text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px]">
+              Expires soon
+            </span>
+          )}
+        </div>
+        <h3 className="text-base font-semibold mb-2 group-hover:text-muted transition-colors">
           {offer.title}
-        </Link>
-      </h3>
-      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-        {offer.description}
-      </p>
-      {offer.quantity && (
-        <p className="text-sm text-gray-700 mb-1">
-          <span className="font-medium">Quantity:</span> {offer.quantity}
+        </h3>
+        <p className="text-sm text-muted mb-4 line-clamp-2 leading-relaxed">
+          {offer.description}
         </p>
-      )}
-      {offer.pickupAddress && (
-        <p className="text-sm text-gray-700 mb-1">
-          <span className="font-medium">Pickup:</span> {offer.pickupAddress}
-        </p>
-      )}
-      <div className="flex justify-between items-center text-xs text-gray-400 pt-3 border-t border-gray-100 mt-3">
-        <span>by {offer.creator.name}</span>
-        <span>{interestCount} interested</span>
+        {offer.quantity && (
+          <p className="text-sm text-foreground mb-1">
+            <span className="text-muted">Quantity:</span> {offer.quantity}
+          </p>
+        )}
+        {offer.pickupAddress && (
+          <p className="text-sm text-foreground mb-1">
+            <span className="text-muted">Pickup:</span> {offer.pickupAddress}
+          </p>
+        )}
+        <div className="flex justify-between items-center text-xs text-muted pt-4 border-t border-border mt-4 font-mono">
+          <span>{offer.creator.name}</span>
+          <span>{interestCount} interested</span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

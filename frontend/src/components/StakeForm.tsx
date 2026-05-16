@@ -64,36 +64,36 @@ export function StakeForm() {
 
   if (!isConnected) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">Connect your wallet to stake EKY tokens.</p>
+      <div className="border border-border rounded-[8px] p-6 bg-pale-yellow-bg/30">
+        <p className="text-pale-yellow-text text-sm">Connect your wallet to stake EKY tokens.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <p className="text-sm text-gray-500">Wallet Balance</p>
-          <p className="text-xl font-bold text-green-600">{Number(balanceFormatted).toFixed(4)} EKY</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-border rounded-[8px] overflow-hidden">
+        <div className="bg-surface p-5">
+          <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-1">Wallet Balance</p>
+          <p className="text-lg font-semibold">{Number(balanceFormatted).toFixed(4)} <span className="text-xs text-muted font-mono">EKY</span></p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <p className="text-sm text-gray-500">Staked</p>
-          <p className="text-xl font-bold text-blue-600">{Number(stakedBalanceFormatted).toFixed(4)} EKY</p>
+        <div className="bg-surface p-5">
+          <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-1">Staked</p>
+          <p className="text-lg font-semibold">{Number(stakedBalanceFormatted).toFixed(4)} <span className="text-xs text-muted font-mono">EKY</span></p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <p className="text-sm text-gray-500">Earned Rewards</p>
-          <p className="text-xl font-bold text-amber-600">{Number(earnedRewardsFormatted).toFixed(6)} EKY</p>
+        <div className="bg-surface p-5">
+          <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-1">Earned Rewards</p>
+          <p className="text-lg font-semibold">{Number(earnedRewardsFormatted).toFixed(6)} <span className="text-xs text-muted font-mono">EKY</span></p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <p className="text-sm text-gray-500">Total Staked (Protocol)</p>
-          <p className="text-xl font-bold text-gray-600">{Number(totalStakedFormatted).toFixed(2)} EKY</p>
+        <div className="bg-surface p-5">
+          <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted mb-1">Total Staked</p>
+          <p className="text-lg font-semibold">{Number(totalStakedFormatted).toFixed(2)} <span className="text-xs text-muted font-mono">EKY</span></p>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border">
-        <h3 className="text-lg font-semibold mb-4">Stake EKY Tokens</h3>
-        <div className="flex gap-2 mb-2">
+      <div className="border border-border rounded-[8px] p-6">
+        <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Stake EKY Tokens</h3>
+        <div className="flex gap-2 mb-3">
           <input
             type="number"
             value={stakeAmount}
@@ -101,11 +101,11 @@ export function StakeForm() {
             placeholder="Amount to stake"
             min="0"
             step="0.01"
-            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            className="flex-1 border border-border bg-surface rounded-[4px] px-3 py-2 text-sm font-mono focus:border-accent"
           />
           <button
             onClick={() => setStakeAmount(formatMax(balanceFormatted))}
-            className="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300"
+            className="bg-surface-alt border border-border px-3 py-2 rounded-[4px] text-xs font-mono uppercase tracking-wider hover:bg-border transition-colors"
           >
             MAX
           </button>
@@ -115,7 +115,7 @@ export function StakeForm() {
           <button
             onClick={handleApprove}
             disabled={stakeLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400 transition"
+            className="w-full bg-accent text-white py-2.5 px-4 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
           >
             {isApproving || isApproveConfirming ? "Approving..." : "Approve EKY"}
           </button>
@@ -123,28 +123,28 @@ export function StakeForm() {
           <button
             onClick={handleStake}
             disabled={stakeLoading || !stakeAmount || Number(stakeAmount) <= 0}
-            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:bg-gray-400 transition"
+            className="w-full bg-accent text-white py-2.5 px-4 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
           >
             {isStakingPending || isStakeConfirming ? "Staking..." : "Stake"}
           </button>
         )}
 
         {isApproveSuccess && (
-          <p className="mt-2 text-blue-600 text-sm">Approval confirmed! You can now stake.</p>
+          <p className="mt-3 text-pale-blue-text text-xs font-mono">Approval confirmed. You can now stake.</p>
         )}
         {isStakeSuccess && (
-          <p className="mt-2 text-green-600 text-sm">Successfully staked!</p>
+          <p className="mt-3 text-pale-green-text text-xs font-mono">Successfully staked.</p>
         )}
         {(approveError || stakeError) && (
-          <p className="mt-2 text-red-600 text-sm">
+          <p className="mt-3 text-pale-red-text text-xs font-mono">
             Error: {(approveError || stakeError)?.message || "Transaction failed"}
           </p>
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border">
-        <h3 className="text-lg font-semibold mb-4">Unstake EKY Tokens</h3>
-        <div className="flex gap-2 mb-2">
+      <div className="border border-border rounded-[8px] p-6">
+        <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Unstake EKY Tokens</h3>
+        <div className="flex gap-2 mb-3">
           <input
             type="number"
             value={unstakeAmount}
@@ -152,11 +152,11 @@ export function StakeForm() {
             placeholder="Amount to unstake"
             min="0"
             step="0.01"
-            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            className="flex-1 border border-border bg-surface rounded-[4px] px-3 py-2 text-sm font-mono focus:border-accent"
           />
           <button
             onClick={() => setUnstakeAmount(formatMax(stakedBalanceFormatted))}
-            className="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300"
+            className="bg-surface-alt border border-border px-3 py-2 rounded-[4px] text-xs font-mono uppercase tracking-wider hover:bg-border transition-colors"
           >
             MAX
           </button>
@@ -164,35 +164,35 @@ export function StakeForm() {
         <button
           onClick={handleUnstake}
           disabled={unstakeLoading || !unstakeAmount || Number(unstakeAmount) <= 0}
-          className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 disabled:bg-gray-400 transition"
+          className="w-full bg-accent text-white py-2.5 px-4 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
         >
           {isUnstakingPending || isUnstakeConfirming ? "Unstaking..." : "Unstake"}
         </button>
-        {isUnstakeSuccess && <p className="mt-2 text-green-600 text-sm">Successfully unstaked!</p>}
+        {isUnstakeSuccess && <p className="mt-3 text-pale-green-text text-xs font-mono">Successfully unstaked.</p>}
         {unstakeError && (
-          <p className="mt-2 text-red-600 text-sm">
+          <p className="mt-3 text-pale-red-text text-xs font-mono">
             Error: {unstakeError.message || "Transaction failed"}
           </p>
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md border">
+      <div className="border border-border rounded-[8px] p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-semibold">Claim Rewards</h3>
-            <p className="text-gray-500 text-sm">{Number(earnedRewardsFormatted).toFixed(6)} EKY available</p>
+            <h3 className="text-sm font-semibold uppercase tracking-wider">Claim Rewards</h3>
+            <p className="text-muted text-xs font-mono mt-1">{Number(earnedRewardsFormatted).toFixed(6)} EKY available</p>
           </div>
           <button
             onClick={() => claimRewards()}
             disabled={claimLoading || Number(earnedRewardsFormatted) === 0}
-            className="bg-amber-500 text-white py-2 px-6 rounded hover:bg-amber-600 disabled:bg-gray-400 transition"
+            className="bg-accent text-white py-2 px-6 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
           >
             {isClaimingPending || isClaimConfirming ? "Claiming..." : "Claim Rewards"}
           </button>
         </div>
-        {isClaimSuccess && <p className="mt-2 text-green-600 text-sm">Rewards claimed!</p>}
+        {isClaimSuccess && <p className="mt-3 text-pale-green-text text-xs font-mono">Rewards claimed.</p>}
         {claimError && (
-          <p className="mt-2 text-red-600 text-sm">
+          <p className="mt-3 text-pale-red-text text-xs font-mono">
             Error: {claimError.message || "Transaction failed"}
           </p>
         )}

@@ -18,10 +18,10 @@ interface InterestListProps {
   updatingId?: string | null;
 }
 
-const statusColors: Record<InterestItem["status"], string> = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  ACCEPTED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
+const statusStyles: Record<InterestItem["status"], string> = {
+  PENDING: "bg-pale-yellow-bg text-pale-yellow-text",
+  ACCEPTED: "bg-pale-green-bg text-pale-green-text",
+  REJECTED: "bg-pale-red-bg text-pale-red-text",
 };
 
 export function InterestList({
@@ -34,44 +34,42 @@ export function InterestList({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800">Interests</h3>
-      <div className="space-y-3">
+      <h3 className="text-sm font-semibold uppercase tracking-wider">Interests</h3>
+      <div className="space-y-2">
         {interests.map((interest) => (
           <div
             key={interest.id}
-            className="bg-white rounded-lg border border-gray-200 p-4"
+            className="bg-surface border border-border p-4 rounded-[4px]"
           >
             <div className="flex justify-between items-start mb-2">
               <div>
-                <p className="font-medium text-gray-800">
+                <p className="font-medium text-sm">
                   {interest.institution.name}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-[10px] font-mono text-muted tracking-wider">
                   {new Date(interest.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span
-                className={`text-xs font-medium px-2.5 py-0.5 rounded ${statusColors[interest.status]}`}
-              >
+              <span className={`text-[10px] font-mono uppercase tracking-[0.08em] font-medium px-2 py-0.5 rounded-[4px] ${statusStyles[interest.status]}`}>
                 {interest.status}
               </span>
             </div>
             {interest.message && (
-              <p className="text-sm text-gray-600 mb-3">{interest.message}</p>
+              <p className="text-sm text-muted mb-3 leading-relaxed">{interest.message}</p>
             )}
             {isOwner && interest.status === "PENDING" && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => onUpdateStatus(interest.id, "ACCEPTED")}
                   disabled={updatingId === interest.id}
-                  className="bg-green-600 text-white text-sm px-3 py-1 rounded hover:bg-green-700 disabled:bg-gray-400 transition"
+                  className="bg-accent text-white text-xs px-3 py-1.5 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors font-medium tracking-wide"
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => onUpdateStatus(interest.id, "REJECTED")}
                   disabled={updatingId === interest.id}
-                  className="bg-red-600 text-white text-sm px-3 py-1 rounded hover:bg-red-700 disabled:bg-gray-400 transition"
+                  className="border border-border text-foreground text-xs px-3 py-1.5 rounded-[4px] hover:bg-surface-alt disabled:bg-muted/30 transition-colors font-medium tracking-wide"
                 >
                   Reject
                 </button>

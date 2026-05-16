@@ -26,10 +26,10 @@ export default function LoginPage() {
     : "";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-10">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-green-600">Sign in to Ekoky</h1>
-        <p className="text-gray-600 max-w-md">
+        <h1 className="font-serif text-5xl">Sign in to Ekoky</h1>
+        <p className="text-muted max-w-md leading-relaxed">
           Connect your wallet and authenticate with Ethereum to access the marketplace.
         </p>
       </div>
@@ -42,28 +42,28 @@ export default function LoginPage() {
 
       {isConnected && (
         <div className="w-full max-w-md space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-md border text-center space-y-4">
-            <p className="text-sm text-gray-500">Connected wallet</p>
-            <p className="text-lg font-mono font-semibold text-gray-800">
+          <div className="border border-border rounded-[8px] p-6 text-center space-y-4">
+            <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-muted">Connected wallet</p>
+            <p className="text-lg font-mono font-semibold tracking-tight">
               {truncatedAddress}
             </p>
 
             {isBusinessLoading || isInstitutionLoading ? (
-              <p className="text-sm text-gray-400">Checking on-chain status...</p>
+              <p className="text-xs font-mono text-muted">Checking on-chain status...</p>
             ) : (
-              <div className="space-y-1">
+              <div className="flex flex-wrap justify-center gap-2">
                 {isBusiness && (
-                  <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-mono uppercase tracking-[0.08em] font-medium bg-pale-green-bg text-pale-green-text">
                     Registered as Business
                   </span>
                 )}
                 {isInstitution && (
-                  <span className="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full font-medium">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-mono uppercase tracking-[0.08em] font-medium bg-pale-teal-bg text-pale-teal-text">
                     Registered as Institution
                   </span>
                 )}
                 {!isBusiness && !isInstitution && (
-                  <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-mono uppercase tracking-[0.08em] font-medium bg-surface-alt text-muted">
                     Not registered on-chain
                   </span>
                 )}
@@ -75,7 +75,7 @@ export default function LoginPage() {
             <button
               onClick={signIn}
               disabled={loading}
-              className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
+              className="w-full bg-accent text-white py-3 px-6 rounded-[4px] hover:bg-[#333333] disabled:bg-muted/30 transition-colors text-sm font-medium tracking-wide"
             >
               {loading ? "Signing in..." : "Sign in with Ethereum"}
             </button>
@@ -83,10 +83,10 @@ export default function LoginPage() {
 
           {authenticated && !hasProfile && (
             <div className="text-center space-y-4">
-              <p className="text-green-700 font-medium">Successfully authenticated!</p>
+              <p className="text-pale-green-text font-medium text-sm">Successfully authenticated.</p>
               <Link
                 href="/register"
-                className="block w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition font-semibold"
+                className="block w-full bg-accent text-white py-3 px-6 rounded-[4px] hover:bg-[#333333] transition-colors text-sm font-medium tracking-wide text-center"
               >
                 Create your profile
               </Link>

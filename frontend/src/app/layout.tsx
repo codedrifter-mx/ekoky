@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Newsreader } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Ekoky - Reduce Food Waste. Feed Communities.",
@@ -19,12 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${newsreader.variable}`}>
         <Providers>
           <Navbar />
-          <main className="max-w-7xl mx-auto px-4 py-8">
-            {children}
-          </main>
+          <main className="max-w-5xl mx-auto px-6 py-12">{children}</main>
         </Providers>
       </body>
     </html>
